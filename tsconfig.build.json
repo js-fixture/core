@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "paths": {
+      "core": ["src/core/index.ts"],
+      "core/internal": ["src/core/internal/index.ts"],
+      "types": ["src/types/index.ts"],
+      "types/internal": ["src/types/internal/index.ts"],
+      "utils": ["src/utils/index.ts"],
+      "utils/internal": ["src/utils/internal/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

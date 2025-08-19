@@ -1,0 +1,55 @@
+{
+  "name": "@js-fixture/core",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Type-safe test fixture generator for JavaScript/TypeScript. Create clean, customizable, and reusable test data.",
+  "keywords": [
+    "testing",
+    "unit-testing",
+    "fixture",
+    "typescript",
+    "javascript"
+  ],
+  "repository": "github:js-fixture/core",
+  "homepage": "https://github.com/js-fixture/core",
+  "bugs": {
+    "url": "https://github.com/js-fixture/core/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Camille Fontaine",
+    "email": "camille.fontaine93@gmail.com",
+    "url": "http://camillefontaine.dev"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepare": "npm run build",
+    "test": "jest",
+    "test:watch": "jest --watchAll"
+  },
+  "dependencies": {
+    "immer": "^10.1.1",
+    "lodash.merge": "^4.6.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^9.9.0",
+    "@types/jest": "^30.0.0",
+    "@types/lodash.merge": "^4.6.9",
+    "jest": "^30.0.5",
+    "prettier": "^3.6.2",
+    "ts-jest": "^29.4.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3"
+  }
+}

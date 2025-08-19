@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.build.json",
+  "include": ["src", "tests"],
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "core": ["src/core/index.ts"],
+      "core/internal": ["src/core/internal/index.ts"],
+      "types": ["src/types/index.ts"],
+      "types/internal": ["src/types/internal/index.ts"],
+      "utils": ["src/utils/index.ts"],
+      "utils/internal": ["src/utils/internal/index.ts"]
+    }
+  }
+}
