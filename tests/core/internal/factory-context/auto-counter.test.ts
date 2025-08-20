@@ -33,6 +33,3 @@ describe(AutoCounter.name, () => {
     });
   });
 });
-
-
-// test
