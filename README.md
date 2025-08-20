@@ -1,4 +1,6 @@
 # JS Fixture
+![Tests](https://github.com/js-fixture/core/actions/workflows/tests.yml/badge.svg)
+[![npm version](https://img.shields.io/npm/v/%40js-fixture/core.svg)](https://www.npmjs.com/package/@js-fixture/core)
 
 JsFixture is a TypeScript-first fixture library for generating customizable test data.
 
