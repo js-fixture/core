@@ -1,6 +1,6 @@
 {
   "name": "@js-fixture/core",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "type": "module",
   "description": "Type-safe test fixture generator for JavaScript/TypeScript. Create clean, customizable, and reusable test data.",
   "keywords": [
