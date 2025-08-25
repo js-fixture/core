@@ -1,5 +1,5 @@
 import { FixtureRecipe } from "./fixture-recipe";
-import { OverrideBuilder } from "./internal";
+import { OverrideFunction } from "./internal";
 
 /**
  * A factory for creating fixtures of type T based on a given recipe.
@@ -54,17 +54,10 @@ export interface FixtureFactory<T> {
   withVariants(...variants: FixtureRecipe<T>[]): VariantFixtureFactory<T>;
 
   /**
-   * Creates a single fixture of type T.
-   *
-   * @returns A new fixture of type T.
-   */
-  create(): T;
-
-  /**
    * Creates a single fixture of type T with optional overrides, allowing to customize specific properties
    * of the generated fixture at creation time.
    *
-   * @param buildOverride - Optional partial object to override fixture properties.
+   * @param overrideFn - An optional function that returns a partial object to override fixture properties.
    * @returns A new fixture of type T with the specified overrides applied.
    *
    * @example
@@ -78,7 +71,7 @@ export interface FixtureFactory<T> {
    * const customUser = factory.create({ email: 'custom@example.com' });
    * ```
    */
-  create(buildOverride?: OverrideBuilder<T>): T;
+  create(overrideFn?: OverrideFunction<T>): T;
 
   /**
    * Creates an array of fixtures of type T.
@@ -106,7 +99,7 @@ export interface FixtureFactory<T> {
    * The number of fixtures created depends on the global JsFixture configuration
    * settings for array generation.
    *
-   * @param buildOverride - Partial object to override recipe properties for all fixtures.
+   * @param overrideFn - Partial object to override recipe properties for all fixtures.
    * @returns An array of fixtures of type T.
    *
    * @example
@@ -117,13 +110,13 @@ export interface FixtureFactory<T> {
    * }));
    * ```
    */
-  createMany(buildOverride: OverrideBuilder<T>): T[];
+  createMany(overrideFn: OverrideFunction<T>): T[];
 
   /**
    * Creates an array of fixtures with specified length and overrides.
    *
    * @param length - The number of fixtures to create.
-   * @param buildOverride - Partial object to override recipe properties for all fixtures.
+   * @param overrideFn - Partial object to override recipe properties for all fixtures.
    * @returns An array of fixtures of type T.
    *
    * @example
@@ -134,16 +127,16 @@ export interface FixtureFactory<T> {
    * });
    * ```
    */
-  createMany(length: number, buildOverride: OverrideBuilder<T>): T[];
+  createMany(length: number, overrideFn: OverrideFunction<T>): T[];
 
   /**
    * Creates an array of fixtures with specified length and overrides.
    *
    * @param lengthOrOverride - Either the number of fixtures or override object
-   * @param buildOverride - Override object when first parameter is length
+   * @param overrideFn - Override object when first parameter is length
    * @returns An array of fixtures
    */
-  createMany(lengthOrOverride?: number | OverrideBuilder<T>, buildOverride?: OverrideBuilder<T>): T[];
+  createMany(lengthOrOverride?: number | OverrideFunction<T>, overrideFn?: OverrideFunction<T>): T[];
 }
 
 /**

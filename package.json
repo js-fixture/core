@@ -39,8 +39,7 @@
   },
   "dependencies": {
     "immer": "^10.1.1",
-    "lodash.merge": "^4.6.2",
-    "uuid": "^11.1.0"
+    "lodash.merge": "^4.6.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^9.9.0",

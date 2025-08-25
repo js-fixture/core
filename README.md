@@ -1,4 +1,5 @@
 # JS Fixture
+
 ![Tests](https://github.com/js-fixture/core/actions/workflows/tests.yml/badge.svg)
 [![npm version](https://img.shields.io/npm/v/%40js-fixture/core.svg)](https://www.npmjs.com/package/@js-fixture/core)
 
@@ -27,14 +28,14 @@ Thanks!
 In a nutshell, here is how to use the library to create fixtures:
 
 ```typescript
-import { JsFixture } from '@js-fixture/core';
+import { JsFixture } from "@js-fixture/core";
 
 // Define a recipe for a User
 const userRecipe = JsFixture.defineRecipe<User>((ctx) => ({
   id: ctx.autoIncrement(),
-  name: 'John Doe',
-  email: 'john@example.com',
-  createdAt: new Date()
+  name: "John Doe",
+  email: "john@example.com",
+  createdAt: new Date(),
 }));
 
 // Create a factory and generate users
@@ -47,9 +48,9 @@ const users = userFactory.createMany(3);
 // Array of 3 users
 ```
 
-See the Recommended Usage below for best practices.
+See the Best Practices section below for usage recommendations.
 
-## Recommended Usage
+## Best Practices
 
 ### 1. Organize Recipes in a Dedicated Directory
 
@@ -57,13 +58,13 @@ Keep your fixture recipes organized by placing them in a dedicated directory str
 
 ```typescript
 // testing/fixtures/user-recipe.ts
-import { JsFixture } from '@js-fixture/core';
+import { JsFixture } from "@js-fixture/core";
 
 export const userRecipe = JsFixture.defineRecipe<User>((ctx) => ({
   id: ctx.autoIncrement(),
-  name: 'John Doe',
-  email: 'john@example.com',
-  createdAt: new Date()
+  name: "John Doe",
+  email: "john@example.com",
+  createdAt: new Date(),
 }));
 ```
 
@@ -73,25 +74,25 @@ Create new factory instances in your test setup rather than sharing a single fac
 
 ```typescript
 // src/services/user-service.test.ts
-import { userRecipe } from 'testing/fixtures/user-recipe';
-import { FixtureFactory } from '@js-fixture/core';
+import { userRecipe } from "testing/fixtures/user-recipe";
+import { FixtureFactory } from "@js-fixture/core";
 
-describe('UserService', () => {
+describe("UserService", () => {
   let userFactory: FixtureFactory<User>;
 
   beforeEach(() => {
     userFactory = userRecipe.createFactory();
   });
 
-  it('creates a user with incremental ID', () => {
+  it("creates a user with incremental ID", () => {
     const user1 = userFactory.create();
     const user2 = userFactory.create();
-    
+
     expect(user1.id).toBe(1);
     expect(user2.id).toBe(2);
   });
 
-  it('starts fresh in each test', () => {
+  it("starts fresh in each test", () => {
     const user = userFactory.create();
     expect(user.id).toBe(1);
   });
@@ -105,15 +106,15 @@ When composing recipes that depend on other recipes, use `ctx.fromRecipe()` inst
 ```typescript
 const addressRecipe = JsFixture.defineRecipe<Address>((ctx) => ({
   id: ctx.autoIncrement(),
-  street: '123 Main St',
-  city: 'Anytown',
-  zipCode: '12345'
+  street: "123 Main St",
+  city: "Anytown",
+  zipCode: "12345",
 }));
 
 const userRecipe = JsFixture.defineRecipe<User>((ctx) => ({
   id: ctx.autoIncrement(),
-  name: 'John Doe',
-  email: 'john@example.com',
+  name: "John Doe",
+  email: "john@example.com",
   address: ctx.fromRecipe(addressRecipe).create(),
 }));
 
@@ -125,7 +126,9 @@ expect(user1.address.id).toBe(1);
 expect(user2.address.id).toBe(2); // Would be 1 if `ctx.fromRecipe` had not been used
 ```
 
-## Recipe Variants
+## Guides
+
+### Recipe Variants
 
 Create specialized variants of a base recipe:
 
@@ -133,33 +136,30 @@ Create specialized variants of a base recipe:
 // Base user recipe
 const userRecipe = JsFixture.defineRecipe<User>((ctx) => ({
   id: ctx.autoIncrement(),
-  name: 'John Doe',
-  role: 'user',
-  isActive: true
+  name: "John Doe",
+  role: "user",
+  isActive: true,
 }));
 
 // Create specialized variants
 const adminRecipe = userRecipe.variant({
-  role: 'admin'
+  role: "admin",
 });
 
 const inactiveUserRecipe = userRecipe.variant({
   isActive: false,
-  deactivatedAt: new Date()
+  deactivatedAt: new Date(),
 });
 
 // Use variants - Method 1
-const inactiveAdmin = userRecipe
-                        .createFactory()
-                        .withVariants(adminRecipe, inactiveUserRecipe)
-                        .create();
+const inactiveAdmin = userRecipe.createFactory().withVariants(adminRecipe, inactiveUserRecipe).create();
 
 // Use variants - Method 2
 const admin = adminRecipe.createFactory().create();
 const inactiveUser = inactiveUserRecipe.createFactory().create();
 ```
 
-## Runtime Overrides
+### Runtime Overrides
 
 Override specific properties at creation time:
 
@@ -177,7 +177,7 @@ const inactiveUsers = userFactory.createMany(5, (ctx) => ({
 )});
 ```
 
-## Nested Fixtures
+### Nested Fixtures
 
 You can compose recipes that depend on other recipes using `ctx.fromRecipe()`:
 
@@ -185,24 +185,24 @@ You can compose recipes that depend on other recipes using `ctx.fromRecipe()`:
 // Define related recipes
 const addressRecipe = JsFixture.defineRecipe<Address>((ctx) => ({
   id: ctx.autoIncrement(),
-  street: '123 Main St',
-  city: 'Anytown',
-  zipCode: '12345'
+  street: "123 Main St",
+  city: "Anytown",
+  zipCode: "12345",
 }));
 
 const userRecipe = JsFixture.defineRecipe<User>((ctx) => ({
   id: ctx.autoIncrement(),
-  name: 'John Doe',
+  name: "John Doe",
   // Create nested fixtures
   address: ctx.fromRecipe(addressRecipe).create(),
   // Create arrays of nested fixtures
-  previousAddresses: ctx.fromRecipe(addressRecipe).createMany(2)
+  previousAddresses: ctx.fromRecipe(addressRecipe).createMany(2),
 }));
 ```
 
-## Included Utilities
+## Utilities
 
-### `ctx.autoIncrement(key?:string)`
+### `ctx.autoIncrement(key)`
 
 Generates an auto-incrementing number. Accepts an optional key.
 
@@ -213,7 +213,7 @@ const fooRecipe = JsFixture.defineRecipe<Foo>((ctx) => ({
 }));
 const barRecipe = JsFixture.defineRecipe<Bar>((ctx) => ({
   id: ctx.autoIncrement(),
-  otherId: ctx.autoIncrement('my-key'),
+  otherId: ctx.autoIncrement("my-key"),
 }));
 
 // Examples
@@ -226,37 +226,48 @@ console.log(barFactory.create()); // { id: 1, otherId: 1}
 console.log(barFactory.create()); // { id: 2, otherId: 2}
 ```
 
-### `pickFromArray`
+### `ctx.contextualValue(fn)`
+
+Generate a value based on the fixture being created. The function you provide receives the current fixture.
+
+```typescript
+const fooRecipe = JsFixture.defineRecipe((ctx) => ({
+  prop1: "foo",
+  prop2: ctx.contextualValue((foo) => foo.prop1 + " bar"), // foo bar
+}));
+```
+
+### `pickFromArray(array)`
 
 Randomly selects and returns one element from the provided array.
 
 ```typescript
-import { pickFromArray } from '@js-fixture/core';
+import { pickFromArray } from "@js-fixture/core";
 
 const userRecipe = JsFixture.defineRecipe<User>((ctx) => ({
   id: ctx.autoIncrement(),
-  name: 'Alice',
-  role: pickFromArray(['admin', 'user', 'moderator'])
+  name: "Alice",
+  role: pickFromArray(["admin", "user", "moderator"]),
 }));
 ```
 
-### `pickFromEnum`
+### `pickFromEnum(enum)`
 
 Randomly selects and returns one value from the provided enum.
 
 ```typescript
-import { pickFromArray } from '@js-fixture/core';
+import { pickFromArray } from "@js-fixture/core";
 
 enum UserRole {
-    Admin,
-    User,
-    Moderator
+  Admin,
+  User,
+  Moderator,
 }
 
 const userRecipe = JsFixture.defineRecipe<User>((ctx) => ({
   id: ctx.autoIncrement(),
-  name: 'Alice',
-  role: pickFromEnum(UserRole)
+  name: "Alice",
+  role: pickFromEnum(UserRole),
 }));
 ```
 
@@ -266,9 +277,9 @@ const userRecipe = JsFixture.defineRecipe<User>((ctx) => ({
 // Configure global settings
 JsFixture.configure({
   array: {
-    min: 2,    // Minimum array length for createMany()
-    max: 8     // Maximum array length for createMany()
-  }
+    min: 2, // Minimum array length for createMany()
+    max: 8, // Maximum array length for createMany()
+  },
 });
 ```
 
@@ -285,13 +296,13 @@ interface User {
 
 // Recipe is fully typed
 const userRecipe = JsFixture.defineRecipe<User>((ctx) => ({
-  id: ctx.autoIncrement(),    // number
-  name: 'John',               // string
-  email: 'john@example.com'   // string
+  id: ctx.autoIncrement(), // number
+  name: "John", // string
+  email: "john@example.com", // string
   // unknownProperty: 'not allowed'   // TypeScript error
 }));
 
 // Factory methods are typed
 const factory = userRecipe.createFactory();
-const user: User = factory.create();  // Correctly typed as User
+const user: User = factory.create(); // Correctly typed as User
 ```

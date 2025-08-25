@@ -1,5 +1,5 @@
-import { FixtureRecipe, Config } from "types";
-import { RecipeBuilder, Override } from "types/internal";
+import { FixtureRecipe } from "types";
+import { RecipeFunction, Override, Config } from "types/internal";
 import { setConfig } from "utils/internal";
 import { FixtureRecipeImpl } from "./internal";
 
@@ -12,10 +12,8 @@ export class JsFixture {
   /**
    * Defines a recipe (i.e., a template that describes how to create instances of type T).
    * 
-   * The build function , random selections, etc.
-   * 
    * @template T - The type of object this recipe will create.
-   * @param buildFixture - A function that defines how to build an instance of T. Receives a context object that provides utilities such as auto-incrementing IDs, using nested recipes, etc.
+   * @param fn - A function that defines how to build an instance of T. Receives a context object that provides utilities such as auto-incrementing IDs, using nested recipes, etc.
    * @returns A FixtureRecipe that can be used to create variants and fixture factories.
    * 
    * @example
@@ -31,8 +29,8 @@ export class JsFixture {
    * }));
    * ```
    */
-  static defineRecipe<T>(buildFixture: RecipeBuilder<T>): FixtureRecipe<T> {
-    return new FixtureRecipeImpl(buildFixture);
+  static defineRecipe<T>(fn: RecipeFunction<T>): FixtureRecipe<T> {
+    return new FixtureRecipeImpl(fn);
   }
 
   /**
