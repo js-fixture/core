@@ -47,11 +47,9 @@ export class FixtureRecipeImpl<TFixture> implements FixtureRecipe<TFixture> {
 
     let fixture = template;
 
-    if (ctx.session.isOutermostFactory) {
       ctx.fixture = template as TFixture;
       // Lazy values must only be resolved when building the outermost fixture, not inner fixtures
-      fixture = resolveDeferredValues(template, template) as TFixture;
-    }
+      fixture = resolveDeferredValues(ctx.session.isOutermostFactory, template, template) as TFixture;
 
     ctx.session.exitCreationMode();
 
@@ -64,8 +62,8 @@ export class FixtureRecipeImpl<TFixture> implements FixtureRecipe<TFixture> {
  * @param obj The object whose deferred values will resolved into their real values.
  * @returns An object whose deferred values have been resolved into their real values.
  */
-function resolveDeferredValues<TFixture>(draft: TFixture, obj: unknown): unknown {
-  if (isLazy(obj)) {
+function resolveDeferredValues<TFixture>(isOutermostFactory:boolean, draft: TFixture, obj: unknown): unknown {
+  if (isOutermostFactory && isLazy(obj)) {
     return obj.get();
   }
 
@@ -74,11 +72,11 @@ function resolveDeferredValues<TFixture>(draft: TFixture, obj: unknown): unknown
   }
 
   if (Array.isArray(obj)) {
-    return obj.map((item) => resolveDeferredValues(draft,item));
+    return obj.map((item) => resolveDeferredValues(isOutermostFactory,draft,item));
   }
 
   if (obj && typeof obj === "object") {
-    return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, resolveDeferredValues(draft,value)]));
+    return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, resolveDeferredValues(isOutermostFactory,draft,value)]));
   }
 
   return obj;

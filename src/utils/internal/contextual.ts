@@ -8,14 +8,25 @@ import { CONTEXTUAL, ContextualValue, ContextualValueFn } from "types";
  */
 export function contextualValue<TFixture, TValue>(
   fn: ContextualValueFn<TFixture, TValue>,
+  _fixture: { instance: TFixture | null },
 ): ContextualValue<TFixture, TValue> {
-  return {
+  const testcam = {
     [CONTEXTUAL]: true,
     get: (fixture: TFixture) => {
-      const value = fn(fixture);
-      return isContextualValue<TFixture, TValue>(value) ? value.get(fixture) : value;
-    }
-  };
+      if (!_fixture.instance) return testcam;
+
+      const value = fn(_fixture.instance!);
+      return isContextualValue<TFixture, TValue>(value) ? value.get(_fixture.instance!) : value;
+    },
+    toString() {
+      if (!_fixture.instance) {
+        throw new Error("ContextualValue cannot be printed before the fixture has been created.");
+      }
+      return `${fn(_fixture.instance)}`;
+    },
+  } as const;
+
+  return testcam;
 }
 
 export function isContextualValue<TFixture, TValue>(value: any): value is ContextualValue<TFixture, TValue> {

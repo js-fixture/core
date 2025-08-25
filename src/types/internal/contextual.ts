@@ -5,7 +5,7 @@ export const CONTEXTUAL = ("contextual");
  */
 export type ContextualValue<TFixture, TValue> = {
   [CONTEXTUAL]: true;
-  get: (fixture: TFixture) => TValue;
+  get: (fixture: TFixture) => TValue | ContextualValue<TFixture, TValue> ;
   toString: () => string;
 };
 

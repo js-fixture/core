@@ -20,6 +20,8 @@ import { LazyValue } from "./internal";
  * ```
  */
 export interface FactoryContext<TFixture> {
+
+     currentFixture: { instance: TFixture | null };
   contextualValue<TValue>(fn: (fixture: TFixture) => TValue): TValue | ContextualValue<TFixture, TValue>;
 
   /**

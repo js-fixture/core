@@ -10,7 +10,7 @@ import { contextualValue } from "src/utils/internal/contextual";
 export class FactoryContextImpl<TFixture> implements FactoryContext<TFixture> {
   private readonly autoCounter = new AutoCounter();
   private readonly registeredFactories = new Map<FixtureRecipe<unknown>, FixtureFactory<unknown>>();
-  private currentFixture: { instance: TFixture | null } = { instance: null };
+  public currentFixture: { instance: TFixture | null } = { instance: null };
 
   public set fixture(value: TFixture) {
     this.currentFixture.instance = value;
@@ -29,7 +29,7 @@ export class FactoryContextImpl<TFixture> implements FactoryContext<TFixture> {
   }
 
   contextualValue<TValue>(fn: (fixture: TFixture) => TValue): ContextualValue<TFixture, TValue> {
-    return contextualValue(fn);
+    return contextualValue(fn, this.currentFixture);
   }
 
   fromRecipe<TRecipe>(recipe: FixtureRecipe<TRecipe>): FixtureFactory<TRecipe> {
