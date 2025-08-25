@@ -1,6 +1,6 @@
 import merge from "lodash.merge";
 import { produce } from "immer";
-import { Config } from "types";
+import { Config } from "types/internal";
 import { Override } from "types/internal";
 
 const DEFAULT_CONFIG = {

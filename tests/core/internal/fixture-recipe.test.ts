@@ -1,5 +1,5 @@
 import { FixtureFactoryImpl, FixtureRecipeImpl, FactoryContextImpl } from "core/internal";
-import { lazy } from "utils/internal";
+import { lazyValue } from "utils/internal";
 
 describe(FixtureRecipeImpl.name, () => {
   describe(FixtureRecipeImpl.prototype.variant, () => {
@@ -23,7 +23,7 @@ describe(FixtureRecipeImpl.name, () => {
   });
 
   describe(FixtureRecipeImpl.prototype.createFixture, () => {
-    let ctx: FactoryContextImpl;
+    let ctx: FactoryContextImpl<any>;
 
     beforeEach(() => {
       ctx = new FactoryContextImpl();
@@ -63,11 +63,28 @@ describe(FixtureRecipeImpl.name, () => {
 
     describe("Recipe with lazy values", () => {
       it("should return a fixture with real values, not lazy ones", () => {
-        const instance = new FixtureRecipeImpl(() => ({ id: lazy(() => 1), name: "foo" }));
+        const instance = new FixtureRecipeImpl(() => ({ id: lazyValue(() => 1), name: "foo" }));
 
         const result = instance.createFixture(ctx, {});
 
         expect(result).toEqual({ id: 1, name: "foo" });
+      });
+    });
+
+    describe("Recipe with contextual values", () => {
+      it("should return a fixture with its contextual values resolved", () => {
+        interface Foo {
+          prop1: string;
+          prop2: string;
+        }
+        const instance = new FixtureRecipeImpl<Foo>((ctx) => ({
+          prop1: "bar",
+          prop2: ctx.contextualValue((foo) => foo.prop1),
+        }));
+
+        const result = instance.createFixture(ctx, {});
+
+        expect(result).toEqual({ prop1: "bar", prop2: "bar" });
       });
     });
 
@@ -90,10 +107,10 @@ describe(FixtureRecipeImpl.name, () => {
 
       describe("With lazy values", () => {
         it("should create the fixture", () => {
-          const fooRecipe = new FixtureRecipeImpl(() => ({ id: lazy(() => 2), foo_key: "foo" }));
+          const fooRecipe = new FixtureRecipeImpl(() => ({ id: lazyValue(() => 2), foo_key: "foo" }));
           const instance = new FixtureRecipeImpl((ctx) => ({
             id: 1,
-            name: lazy(() => "foo"),
+            name: lazyValue(() => "foo"),
             foo: ctx.fromRecipe(fooRecipe).create(),
           }));
 
@@ -114,14 +131,14 @@ describe(FixtureRecipeImpl.name, () => {
             let fooCounter = 0;
             let barCounter = 0;
             const barRecipe = new FixtureRecipeImpl(() => ({
-              barCounter: lazy(() => {
+              barCounter: lazyValue(() => {
                 barCounter++;
                 return barCounter;
               }),
               foo_key: "foo",
             }));
             const fooRecipe = new FixtureRecipeImpl((ctx) => ({
-              fooCounter: lazy(() => {
+              fooCounter: lazyValue(() => {
                 fooCounter++;
                 return fooCounter;
               }),

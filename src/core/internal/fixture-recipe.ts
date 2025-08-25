@@ -4,20 +4,21 @@ import { FixtureFactoryImpl } from "./fixture-factory";
 import { RecipeBuilder, OverrideBuilder, Override } from "types/internal";
 import { FixtureRecipe, FixtureFactory } from "types";
 import { isLazy } from "utils/internal";
+import { isContextualValue } from "src/utils/internal/contextual";
 
-export class FixtureRecipeImpl<T> implements FixtureRecipe<T> {
-  constructor(buildRecipe: RecipeBuilder<T>);
-  constructor(buildRecipe: RecipeBuilder<T>, override: Override<T>);
+export class FixtureRecipeImpl<TFixture> implements FixtureRecipe<TFixture> {
+  constructor(buildRecipe: RecipeBuilder<TFixture>);
+  constructor(buildRecipe: RecipeBuilder<TFixture>, override: Override<TFixture>);
   constructor(
-    private readonly buildRecipe: RecipeBuilder<T>,
-    private readonly override?: Override<T>,
+    private readonly buildRecipe: RecipeBuilder<TFixture>,
+    private readonly override?: Override<TFixture>,
   ) {}
 
-  variant(override: Override<T>): FixtureRecipe<T> {
+  variant(override: Override<TFixture>): FixtureRecipe<TFixture> {
     return new FixtureRecipeImpl(this.buildRecipe, merge(this.override, override));
   }
 
-  createFactory(): FixtureFactory<T> {
+  createFactory(): FixtureFactory<TFixture> {
     return FixtureFactoryImpl.createInstance(this);
   }
 
@@ -27,7 +28,10 @@ export class FixtureRecipeImpl<T> implements FixtureRecipe<T> {
    * @param options Possible variants and overrides to apply.
    * @returns A fixture.
    */
-  createFixture(ctx: FactoryContextImpl, options: { variants?: FixtureRecipeImpl<T>[]; buildOverride?: OverrideBuilder<T> }): T {
+  createFixture(
+    ctx: FactoryContextImpl<TFixture>,
+    options: { variants?: FixtureRecipeImpl<TFixture>[]; buildOverride?: OverrideBuilder<TFixture> },
+  ): TFixture {
     ctx.session.enterCreationMode();
 
     // Build the template, starting from the original recipe, to variants, to overrides.
@@ -44,32 +48,37 @@ export class FixtureRecipeImpl<T> implements FixtureRecipe<T> {
     let fixture = template;
 
     if (ctx.session.isOutermostFactory) {
-    // Lazy values must only be resolved when building the outermost fixture, not inner fixtures
-      fixture = resolveLazyValues(template) as T;
+      ctx.fixture = template as TFixture;
+      // Lazy values must only be resolved when building the outermost fixture, not inner fixtures
+      fixture = resolveDeferredValues(template, template) as TFixture;
     }
 
     ctx.session.exitCreationMode();
 
-    return fixture as T;
+    return fixture as TFixture;
   }
 }
 
 /**
- * Recursively loops over all properties of the provided object to resolve all lazy values.
- * @param obj
- * @returns An object whose lazy values have been resolved into their real values.
+ * Recursively loops over all properties of the provided object to resolve all deferred values.
+ * @param obj The object whose deferred values will resolved into their real values.
+ * @returns An object whose deferred values have been resolved into their real values.
  */
-function resolveLazyValues(obj: unknown): unknown {
+function resolveDeferredValues<TFixture>(draft: TFixture, obj: unknown): unknown {
   if (isLazy(obj)) {
-    return  obj.get();
+    return obj.get();
+  }
+
+  if (isContextualValue(obj)) {
+    return obj.get(draft);
   }
 
   if (Array.isArray(obj)) {
-    return obj.map((item) => resolveLazyValues(item));
+    return obj.map((item) => resolveDeferredValues(draft,item));
   }
 
   if (obj && typeof obj === "object") {
-    return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, resolveLazyValues(value)]));
+    return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, resolveDeferredValues(draft,value)]));
   }
 
   return obj;

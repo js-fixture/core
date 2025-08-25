@@ -45,25 +45,27 @@ describe(FixtureFactoryImpl.name, () => {
       expect(result).not.toBe(instance);
     });
 
-    describe('No variants provided', () => {
-      let mockConsoleWarn: jest.SpyInstance
+    describe("No variants provided", () => {
+      let mockConsoleWarn: jest.SpyInstance;
+
       beforeEach(() => {
-        mockConsoleWarn = jest.spyOn(console, 'warn');
+        mockConsoleWarn = jest.spyOn(console, "warn").mockImplementation(() => {});
       });
 
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
 
+      it("should log a warning ", () => {
+        const mainRecipe = new FixtureRecipeImpl(() => ({ id: 1, name: "foo" }));
+        const instance = new FixtureFactoryImpl(mainRecipe, new FactoryContextImpl());
+        mainRecipe.createFixture = jest.fn().mockReturnValue({ foo: "bar" });
 
-    it("should log a warning ", () => {
-      const mainRecipe = new FixtureRecipeImpl(() => ({ id: 1, name: "foo" }));
-      const instance = new FixtureFactoryImpl(mainRecipe, new FactoryContextImpl());
-      mainRecipe.createFixture = jest.fn().mockReturnValue({ foo: "bar" });
+        const result = instance.withVariants();
 
-      const result = instance.withVariants();
-
-      expect(result).not.toBe(instance);
-      expect(mockConsoleWarn).toHaveBeenCalledWith('<JsFixture> - No variants provided to `withVariants()`.')
-
-    });
+        expect(result).not.toBe(instance);
+        expect(mockConsoleWarn).toHaveBeenCalledWith("<JsFixture> - No variants provided to `withVariants()`.");
+      });
     });
   });
 
@@ -93,7 +95,7 @@ describe(FixtureFactoryImpl.name, () => {
         const result = instance.create(override);
 
         expect(result).toEqual({ foo: "bar" });
-        expect(recipe.createFixture).toHaveBeenCalledWith(expect.any(FactoryContextImpl), { buildOverride: override});
+        expect(recipe.createFixture).toHaveBeenCalledWith(expect.any(FactoryContextImpl), { buildOverride: override });
       });
     });
 
@@ -166,7 +168,7 @@ describe(FixtureFactoryImpl.name, () => {
       expect(result[0]).toEqual({ foo: "bar1" });
       expect(result[1]).toEqual({ foo: "bar2" });
       expect(recipe.createFixture).toHaveBeenCalledTimes(2);
-      expect(recipe.createFixture).toHaveBeenCalledWith(expect.any(FactoryContextImpl), { buildOverride: override});
+      expect(recipe.createFixture).toHaveBeenCalledWith(expect.any(FactoryContextImpl), { buildOverride: override });
     });
 
     it("should create `length` fixtures with specified overrides when `length` and `overrides` are provided", () => {
@@ -186,7 +188,7 @@ describe(FixtureFactoryImpl.name, () => {
       expect(result[1]).toEqual({ foo: "bar2" });
       expect(result[2]).toEqual({ foo: "bar3" });
       expect(recipe.createFixture).toHaveBeenCalledTimes(3);
-      expect(recipe.createFixture).toHaveBeenCalledWith(expect.any(FactoryContextImpl), { buildOverride: override});
+      expect(recipe.createFixture).toHaveBeenCalledWith(expect.any(FactoryContextImpl), { buildOverride: override });
     });
   });
 });

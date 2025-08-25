@@ -1,5 +1,5 @@
-import { FixtureRecipe, Config } from "types";
-import { RecipeBuilder, Override } from "types/internal";
+import { FixtureRecipe } from "types";
+import { RecipeBuilder, Override, Config } from "types/internal";
 import { setConfig } from "utils/internal";
 import { FixtureRecipeImpl } from "./internal";
 

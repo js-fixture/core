@@ -38,6 +38,7 @@
     "test:watch": "jest --watchAll"
   },
   "dependencies": {
+    "deepmerge": "^4.3.1",
     "immer": "^10.1.1",
     "lodash.merge": "^4.6.2",
     "uuid": "^11.1.0"

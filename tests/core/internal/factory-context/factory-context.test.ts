@@ -2,8 +2,9 @@ import { faker } from "@faker-js/faker";
 import { FixtureFactoryImpl, FixtureRecipeImpl, FactoryContextImpl } from "core/internal";
 import { FixtureFactory, FixtureRecipe } from "types";
 import { LazyValue } from "types/internal";
+import * as contextualModule from "src/utils/internal/contextual";
 
-jest.mock("src/utils/internal/get-number-between");
+jest.mock("src/utils/internal/contextual");
 
 const getNextValueMock = jest.fn();
 
@@ -16,15 +17,19 @@ jest.mock("src/core/internal/factory-context/auto-counter", () => {
 });
 
 describe(FactoryContextImpl, () => {
-  let createFactoryInstance: jest.SpyInstance;
+  let createFactoryInstanceSpy: jest.SpyInstance;
+  let contextualSpy: jest.SpyInstance;
 
   beforeEach(() => {
     getNextValueMock.mockReset();
-    createFactoryInstance = jest.spyOn(FixtureFactoryImpl, "createInstance");
+    createFactoryInstanceSpy = jest.spyOn(FixtureFactoryImpl, "createInstance");
+    contextualSpy = jest.spyOn(contextualModule, "contextualValue").mockImplementation((...args) => {
+      return jest.requireActual("src/utils/internal/contextual").contextualValue(...args);
+    });
   });
 
   afterEach(() => {
-    createFactoryInstance.mockClear();
+    jest.restoreAllMocks();
   });
 
   describe(FactoryContextImpl.prototype.autoIncrement.name, () => {
@@ -39,6 +44,23 @@ describe(FactoryContextImpl, () => {
     });
   });
 
+  describe(FactoryContextImpl.prototype.contextualValue, () => {
+    it("should return a contextual value created from the provided function and the current fixture", () => {
+      interface Foo {
+        id: number;
+      }
+      const fn = (foo: Foo) => foo.id;
+      const fixture: Foo = { id: 5 };
+      const instance = new FactoryContextImpl<Foo>();
+
+      instance.fixture = fixture;
+      const result = instance.contextualValue(fn);
+
+      expect(result).toBeTruthy();
+      expect(contextualSpy).toHaveBeenCalledWith(fn, expect.objectContaining({ instance: fixture }));
+    });
+  });
+
   describe(FactoryContextImpl.prototype.fromRecipe, () => {
     describe("Recipe hasn't been used before", () => {
       it("should return a new <FixtureFactory>", () => {
@@ -49,14 +71,14 @@ describe(FactoryContextImpl, () => {
         const result1 = instance.fromRecipe(recipe1);
 
         expect(result1).toBe(factory1);
-        expect(createFactoryInstance).toHaveBeenCalledTimes(1);
-        createFactoryInstance.mockClear();
+        expect(createFactoryInstanceSpy).toHaveBeenCalledTimes(1);
+        createFactoryInstanceSpy.mockClear();
 
         const [recipe2, factory2] = createMockRecipe();
         const result2 = instance.fromRecipe(recipe2);
 
         expect(result2).toBe(factory2);
-        expect(createFactoryInstance).toHaveBeenCalledTimes(1);
+        expect(createFactoryInstanceSpy).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -68,19 +90,19 @@ describe(FactoryContextImpl, () => {
         const result1 = instance.fromRecipe(recipe1);
 
         expect(result1).toBe(factory1);
-        expect(createFactoryInstance).toHaveBeenCalledTimes(1);
-        createFactoryInstance.mockClear();
+        expect(createFactoryInstanceSpy).toHaveBeenCalledTimes(1);
+        createFactoryInstanceSpy.mockClear();
 
         const [recipe2, factory2] = createMockRecipe();
         let result2 = instance.fromRecipe(recipe2);
 
         expect(result2).toBe(factory2);
-        expect(createFactoryInstance).toHaveBeenCalledTimes(1);
-        createFactoryInstance.mockClear();
+        expect(createFactoryInstanceSpy).toHaveBeenCalledTimes(1);
+        createFactoryInstanceSpy.mockClear();
 
         result2 = instance.fromRecipe(recipe2);
         expect(result2).toBe(factory2);
-        expect(createFactoryInstance).toHaveBeenCalledTimes(0);
+        expect(createFactoryInstanceSpy).toHaveBeenCalledTimes(0);
       });
     });
   });
@@ -88,7 +110,7 @@ describe(FactoryContextImpl, () => {
   function createMockRecipe(): [FixtureRecipe<any>, jest.Mock<FixtureFactory<{}>>] {
     const recipe = new FixtureRecipeImpl(() => ({}));
     const factory: jest.Mock<FixtureFactory<{}>> = jest.fn();
-    createFactoryInstance.mockReturnValueOnce(factory);
+    createFactoryInstanceSpy.mockReturnValueOnce(factory);
     return [recipe, factory];
   }
 });

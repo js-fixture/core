@@ -1,3 +1,4 @@
+import { ContextualValue } from "./internal/contextual";
 import { FixtureFactory } from "./fixture-factory";
 import { FixtureRecipe } from "./fixture-recipe";
 import { LazyValue } from "./internal";
@@ -18,7 +19,9 @@ import { LazyValue } from "./internal";
  * }));
  * ```
  */
-export interface FactoryContext {
+export interface FactoryContext<TFixture> {
+  contextualValue<TValue>(fn: (fixture: TFixture) => TValue): TValue | ContextualValue<TFixture, TValue>;
+
   /**
    * Generates an auto-incrementing number using the default, nameless counter.
    *
