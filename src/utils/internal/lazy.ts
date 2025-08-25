@@ -1,6 +1,6 @@
 import { LAZY, LazyValue } from "types/internal";
 
-export function lazy<T>(fn: () => T): LazyValue<T> {
+export function lazyValue<T>(fn: () => T): LazyValue<T> {
   return {
     [LAZY]: true,
     get: fn,

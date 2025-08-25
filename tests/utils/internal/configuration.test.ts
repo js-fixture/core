@@ -1,5 +1,4 @@
-import { Config } from "types";
-import { Override } from "types/internal";
+import { Override, Config } from "types/internal";
 import { setConfig, getConfig } from "utils/internal";
 
 describe(setConfig.name, () => {
