@@ -10,7 +10,10 @@
     "typescript",
     "javascript"
   ],
-  "repository": "github:js-fixture/core",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/js-fixture/core.git"
+  },
   "homepage": "https://github.com/js-fixture/core",
   "bugs": {
     "url": "https://github.com/js-fixture/core/issues"
