@@ -18,6 +18,20 @@ describe(FixtureDraft.name, () => {
           expect(result).toEqual(draft);
         });
       });
+      
+      describe("Simple draft with Date value", () => {
+        it("should return an equal object", () => {
+          const draft = {
+            date1: new Date(2022, 3, 25),            
+            date2: new Date(2020, 7, 4)
+          };
+          const isBaseDraft = faker.datatype.boolean();
+
+          const result = new FixtureDraft(draft, isBaseDraft).toFixture();
+
+          expect(result).toEqual(draft);
+        });
+      });
 
       describe("Simple draft with an array of primitives", () => {
         it("should return an equal object", () => {
