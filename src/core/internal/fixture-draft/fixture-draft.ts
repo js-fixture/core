@@ -40,7 +40,7 @@ export class FixtureDraft<TFixture> {
       return obj.map((item) => this.resolveLayer(isBaseDraft, draft, item));
     }
 
-    if (obj && typeof obj === "object") {
+    if (obj && typeof obj === "object" && !(obj instanceof Date)) {
       return Object.fromEntries(
         Object.entries(obj).map(([key, value]) => [key, this.resolveLayer(isBaseDraft, draft, value)]),
       );
