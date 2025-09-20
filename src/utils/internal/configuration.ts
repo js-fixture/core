@@ -1,4 +1,4 @@
-import merge from "lodash.merge";
+import mergewith from "lodash.mergewith";
 import { produce } from "immer";
 import { Config } from "types/internal";
 import { Override } from "types/internal";
@@ -14,7 +14,7 @@ let _config: Config = DEFAULT_CONFIG;
 
 export function setConfig(config: Override<Config>): void {
   _config = produce(_config, (draft) => {
-    merge(draft, config);
+    mergewith(draft, config);
   });
 }
 

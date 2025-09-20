@@ -17,11 +17,7 @@ describe(FixtureDraftFactory.name, () => {
   describe(FixtureDraftFactory.prototype.create.name, () => {
     describe("Is base draft", () => {
       it("should return a draft marked as being a base draft", () => {
-        const result = instance.create(
-          ctx,
-          new FixtureRecipeImpl(() => ({ prop1: 10, prop2: "foo", array: [1, 2, 3, 4] })),
-          {},
-        );
+        const result = instance.create(ctx, new FixtureRecipeImpl(() => ({ prop1: 10, prop2: "foo", array: [1, 2, 3, 4] })), {});
 
         expect(result.isBaseDraft).toBe(true);
         expect(result.draft).toEqual({ prop1: 10, prop2: "foo", array: [1, 2, 3, 4] });
@@ -31,11 +27,7 @@ describe(FixtureDraftFactory.name, () => {
     describe("Is not base draft", () => {
       it("should return a draft marked as not a base draft", () => {
         ctx.depthTracker.startDraftingMode();
-        const result = instance.create(
-          ctx,
-          new FixtureRecipeImpl(() => ({ prop1: 10, prop2: "foo", array: [1, 2, 3, 4] })),
-          {},
-        );
+        const result = instance.create(ctx, new FixtureRecipeImpl(() => ({ prop1: 10, prop2: "foo", array: [1, 2, 3, 4] })), {});
         ctx.depthTracker.exitDraftingMode();
 
         expect(result.isBaseDraft).toBe(false);
@@ -56,11 +48,35 @@ describe(FixtureDraftFactory.name, () => {
     describe("Recipe is a variant", () => {
       it("should return the draft created from the recipe", () => {
         const buildFunction = jest.fn().mockReturnValue({ prop1: "Recipe - Will be overridden", prop2: "Recipe" });
-        const recipe = new FixtureRecipeImpl(buildFunction, { prop1: "Variant" });
+        const recipe = new FixtureRecipeImpl(buildFunction);
+        const variant = recipe.variant({ prop1: "Variant" }) as FixtureRecipeImpl<any>;
 
-        const result = instance.create(ctx, recipe, {});
+        const result = instance.create(ctx, variant, {});
 
         expect(result.draft).toEqual({ prop1: "Variant", prop2: "Recipe" });
+      });
+
+      it("should let the variant's undefined values override non-undefined source values", () => {
+        const buildFunction = jest.fn().mockReturnValue({ prop1: "Recipe - Will be overridden", prop2: "Recipe" });
+        const recipe = new FixtureRecipeImpl(buildFunction);
+        const variant = recipe.variant({ prop1: undefined }) as FixtureRecipeImpl<any>;
+
+        const result = instance.create(ctx, variant, {});
+
+        expect(result.draft).toEqual({ prop1: undefined, prop2: "Recipe" });
+      });
+    });
+
+    describe("Recipe is a variant of another variant", () => {
+      it("should let the variant's undefined values override non-undefined source values", () => {
+        const buildFunction = jest.fn().mockReturnValue({ prop1: "Recipe", prop2: "Recipe - Will be overriden" });
+        const recipe = new FixtureRecipeImpl(buildFunction);
+        const variant1 = recipe.variant({ prop2: "Variant 1 - Will be overriden" });
+        const variant2 = variant1.variant({ prop2: undefined }) as FixtureRecipeImpl<any>;
+
+        const result = instance.create(ctx, variant2, {});
+
+        expect(result.draft).toEqual({ prop1: "Recipe", prop2: undefined });
       });
     });
 
@@ -73,6 +89,16 @@ describe(FixtureDraftFactory.name, () => {
         const result = instance.create(ctx, recipe, createOptions([variant]));
 
         expect(result.draft).toEqual({ prop1: "Overriden by variant", prop2: "Recipe" });
+      });
+
+      it("should let the variant's undefined values override non-undefined source values", () => {
+        const buildFunction = jest.fn().mockReturnValue({ prop1: "Recipe - Will be overridden", prop2: "Recipe" });
+        const recipe = new FixtureRecipeImpl(buildFunction);
+        const variant = new FixtureRecipeImpl(jest.fn(), { prop1: undefined });
+
+        const result = instance.create(ctx, recipe, createOptions([variant]));
+
+        expect(result.draft).toEqual({ prop1: undefined, prop2: "Recipe" });
       });
     });
 
@@ -101,6 +127,19 @@ describe(FixtureDraftFactory.name, () => {
         );
 
         expect(result.draft).toEqual({ prop1: "Recipe", prop2: "Overridden" });
+      });
+
+      it("should let the override's undefined values override non-undefined source values", () => {
+        const buildFunction = jest.fn().mockReturnValue({ prop1: "Recipe", prop2: "Recipe - Will be overridden" });
+        const recipe = new FixtureRecipeImpl(buildFunction);
+
+        const result = instance.create(
+          ctx,
+          recipe,
+          createOptions([], () => ({ prop2: undefined })),
+        );
+
+        expect(result.draft).toEqual({ prop1: "Recipe", prop2: undefined });
       });
     });
 
