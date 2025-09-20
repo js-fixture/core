@@ -1,9 +1,9 @@
-import merge from "lodash.merge";
 import { DraftOptions } from "types/internal";
 import { ContextImpl } from "../context";
 import { FactoryContext } from "../fixture-factory";
 import { FixtureRecipeImpl } from "../fixture-recipe";
 import { FixtureDraft } from "./fixture-draft";
+import { forceMerge } from "utils/internal";
 
 /**
  * Factory for creating draft fixtures.
@@ -26,15 +26,15 @@ export class FixtureDraftFactory {
 
     // Must start tracking the current drafting session to ensure that lazy values are only resolved when building the main fixture, not nested ones
     factoryCtx.depthTracker.startDraftingMode();
-    
-    let draft = merge(recipe.createDraft(ctx), recipe.override);
+
+    let draft = forceMerge(recipe.createDraft(ctx), recipe.override);
 
     for (const variant of options.variants ?? []) {
-      draft = merge(draft, variant.override);
+      draft = forceMerge(draft, variant.override);
     }
 
     if (options.overrideDraft) {
-      draft = merge(draft, options.overrideDraft(ctx));
+      draft = forceMerge(draft, options.overrideDraft(ctx));
     }
 
     ctx.draft = draft as TFixture;

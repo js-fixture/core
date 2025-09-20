@@ -16,6 +16,16 @@ describe(FixtureRecipeImpl.name, () => {
       expect(result.createDraft).toBe(instance.createDraft);
       expect(result.override).toEqual({ name: "bar" });
     });
+
+    it("should let properties explicitly set as undefined in the override 'erase' the base properties", () => {
+      const instance = new FixtureRecipeImpl<Foo>(() => ({ id: 10, name: "foo" }));
+      const result = instance.variant({ name: undefined }) as FixtureRecipeImpl<Foo>;
+
+      expect(result).toBeTruthy();
+      expect(result).not.toBe(instance);
+      expect(result.createDraft).toBe(instance.createDraft);
+      expect(result.override).toEqual({ name: undefined });
+    });
   });
 
   describe(FixtureRecipeImpl.prototype.createFactory.name, () => {
