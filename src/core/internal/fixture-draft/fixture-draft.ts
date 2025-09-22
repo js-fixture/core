@@ -1,4 +1,5 @@
-import { isContextualValue, isLazy } from "utils/internal";
+import { isContextualValue, isPlaceholderValueForContext, isLazy } from "utils/internal";
+import { ContextImpl } from "../context";
 
 /**
  * Represents a draft of a fixture. Drafts are an intermediate step before producing a fully resolved fixture.
@@ -7,6 +8,7 @@ export class FixtureDraft<TFixture> {
   constructor(
     public readonly draft: TFixture,
     public readonly isBaseDraft: boolean,
+    public readonly ctx: ContextImpl<TFixture>,
   ) {}
 
   /**
@@ -19,8 +21,8 @@ export class FixtureDraft<TFixture> {
     return this.resolveLayer(this.isBaseDraft, this.draft, this.draft) as TFixture;
   }
 
- /**
-   * Recursively resolves all deferred values (lazy/contextual) within an object or array.
+  /**
+   * Recursively resolves all deferred values (lazy/contextual/placeholder) within an object or array.
    *
    * @param isBaseDraft - Whether this draft is the base draft (controls resolution rules for lazy values).
    * @param draft - The root draft object (passed down for context).
@@ -32,8 +34,17 @@ export class FixtureDraft<TFixture> {
       return obj.get();
     }
 
+    if (isPlaceholderValueForContext(this.ctx.uuid, obj)) {
+      return this.resolveLayer(isBaseDraft, draft, obj.get(this.ctx));
+    }
+
     if (isContextualValue(obj)) {
-      return obj.get();
+      const value = obj.get();
+
+      if (isPlaceholderValueForContext(this.ctx.uuid, value)) {
+        return this.resolveLayer(isBaseDraft, draft, value.get(this.ctx));
+      }
+      return value;
     }
 
     if (Array.isArray(obj)) {
@@ -41,9 +52,7 @@ export class FixtureDraft<TFixture> {
     }
 
     if (obj && typeof obj === "object" && !(obj instanceof Date)) {
-      return Object.fromEntries(
-        Object.entries(obj).map(([key, value]) => [key, this.resolveLayer(isBaseDraft, draft, value)]),
-      );
+      return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, this.resolveLayer(isBaseDraft, draft, value)]));
     }
 
     return obj;

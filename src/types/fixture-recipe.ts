@@ -1,5 +1,5 @@
 import { FixtureFactory } from "./fixture-factory";
-import { Override } from "./internal";
+import { Override, OverrideFunction } from "./internal";
 
 /**
  * Represents a fixture recipe that defines how to create instances of type T.
@@ -45,7 +45,7 @@ export interface FixtureRecipe<T> {
    * });
    * ```
    */
-  variant(override: Override<T>): FixtureRecipe<T>;
+  variant(override: Override<T> | OverrideFunction<T>): FixtureRecipe<T>;
 
   /**
    * Creates a factory from this recipe for generating fixtures.

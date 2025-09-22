@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { FactoryContext, FixtureRecipeImpl } from "core/internal";
 import { LazyValue } from "types/internal";
 import * as contextualModule from "src/utils/internal/contextual";
-import { ContextImpl } from "src/core/internal/context";
+import { ContextImpl } from "src/core/internal/context/context";
 import { isLazy } from "utils/internal";
 
 jest.mock("src/utils/internal/contextual");
@@ -27,9 +27,16 @@ describe(ContextImpl, () => {
     jest.restoreAllMocks();
   });
 
+  describe(ContextImpl.prototype.uuid, () => {
+    it("should return the uuid", () => {
+      const instance = new ContextImpl<Foo>(factoryContext, "uuid");
+      expect(instance.uuid).toBe("uuid")
+    });
+  });
+
   describe(ContextImpl.prototype.autoIncrement.name, () => {
     it("should return the next value", () => {
-      const instance = new ContextImpl<Foo>(factoryContext);
+      const instance = new ContextImpl<Foo>(factoryContext, "uuid");
       const expected = faker.number.int();
       getNextIncrementMock.mockReturnValue(expected);
 
@@ -42,7 +49,7 @@ describe(ContextImpl, () => {
 
   describe(ContextImpl.prototype.contextualValue.name, () => {
     it("should return the a contextual value", () => {
-      const instance = new ContextImpl<Foo>(factoryContext);
+      const instance = new ContextImpl<Foo>(factoryContext, "uuid");
       const expected = faker.number.int();
       contextualSpy.mockReturnValue(expected);
 
@@ -54,7 +61,7 @@ describe(ContextImpl, () => {
 
   describe(ContextImpl.prototype.fromRecipe, () => {
     it("should return a <FixtureFactory>", () => {
-      const instance = new ContextImpl<Foo>(factoryContext);
+      const instance = new ContextImpl<Foo>(factoryContext, "uuid");
       const recipe = new FixtureRecipeImpl(() => ({
         key: "value",
       }));

@@ -1,7 +1,7 @@
 import { Context, FixtureFactory, FixtureRecipe } from "types";
 import { ContextualValue, LazyValue } from "types/internal";
 import { contextualValue, lazyValue } from "utils/internal";
-import { FactoryContext } from "./fixture-factory";
+import { FactoryContext } from "../fixture-factory";
 
 /**
  * Fixture-building context exposed by the public API when defining a recipe or creating a fixture.
@@ -16,7 +16,11 @@ export class ContextImpl<TFixture> implements Context<TFixture> {
     this._draft.instance = value;
   }
 
-  constructor(private readonly factoryContext: FactoryContext) {}
+  public get uuid() {
+    return this.recipeUUID;
+  }
+
+  constructor(private readonly factoryContext: FactoryContext, private readonly recipeUUID: string) {}
 
   /**
    * Returns a lazily evaluated auto-incrementing number.
@@ -24,7 +28,7 @@ export class ContextImpl<TFixture> implements Context<TFixture> {
    * @param key - Optional key to namespace the counter. If omitted, uses a global counter.
    * @returns A lazy value that, when resolved, yields the next increment.
    */
-  autoIncrement(key?: string): number | LazyValue<number> {
+  autoIncrement(key?: string): LazyValue<number> {
     return lazyValue(() => this.factoryContext.getNextIncrement(key));
   }
 

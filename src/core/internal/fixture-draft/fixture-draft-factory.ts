@@ -1,5 +1,5 @@
 import { DraftOptions } from "types/internal";
-import { ContextImpl } from "../context";
+import { ContextImpl } from "../context/context";
 import { FactoryContext } from "../fixture-factory";
 import { FixtureRecipeImpl } from "../fixture-recipe";
 import { FixtureDraft } from "./fixture-draft";
@@ -22,15 +22,14 @@ export class FixtureDraftFactory {
     recipe: FixtureRecipeImpl<TFixture>,
     options: DraftOptions<TFixture>,
   ): FixtureDraft<TFixture> {
-    const ctx = new ContextImpl<TFixture>(factoryCtx);
+    const ctx = new ContextImpl<TFixture>(factoryCtx, recipe.uuid);
 
     // Must start tracking the current drafting session to ensure that lazy values are only resolved when building the main fixture, not nested ones
     factoryCtx.depthTracker.startDraftingMode();
 
-    let draft = forceMerge(recipe.createDraft(ctx), recipe.override);
-
+    let draft = recipe.draft(ctx);
     for (const variant of options.variants ?? []) {
-      draft = forceMerge(draft, variant.override);
+      draft = forceMerge(draft, variant.draftAsVariant(ctx));
     }
 
     if (options.overrideDraft) {
@@ -42,6 +41,6 @@ export class FixtureDraftFactory {
 
     factoryCtx.depthTracker.exitDraftingMode();
 
-    return new FixtureDraft(draft as TFixture, isBaseDraft);
+    return new FixtureDraft(draft as TFixture, isBaseDraft, ctx);
   }
 }
