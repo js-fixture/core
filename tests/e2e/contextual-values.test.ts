@@ -64,10 +64,16 @@ describe("E2E - Contextual Values", () => {
 
     interface Baz {
       baz1: string;
+      baz2: string;
+      baz3: string;
+      baz4: string;
     }
 
     const bazRecipe = JsFixture.defineRecipe<Baz>((ctx) => ({
       baz1: "baz1",
+      baz2: "baz2",
+      baz3: "baz3",
+      baz4: "baz4",
     }));
 
     const barRecipe = JsFixture.defineRecipe<Bar>((ctx) => ({
@@ -87,6 +93,11 @@ describe("E2E - Contextual Values", () => {
         bar1: fooCtx.contextualValue((fixture) => fixture.foo2),
         bar2: fooCtx.contextualValue((fixture) => `${fixture.foo2}`),
         bar3: barCtx.contextualValue((fixture) => fixture.bar2),
+        baz: barCtx.fromRecipe(bazRecipe).create((bazCtx) => ({
+          baz2: bazCtx.contextualValue(f => f.baz1),
+          baz3: barCtx.contextualValue(f => f.bar2),
+          baz4: fooCtx.contextualValue(f => f.bar.bar2),
+        })),
       })),
     }));
 
@@ -101,9 +112,12 @@ describe("E2E - Contextual Values", () => {
         bar1: "foo",
         bar2: "foo",
         bar3: "foo",
-        bar4: 'foo',
+        bar4: "foo",
         baz: {
           baz1: "baz1",
+          baz2:"baz1",
+          baz3:"foo",
+          baz4:"foo"
         },
       },
     });

@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker";
 import { FactoryContext, FixtureRecipeImpl } from "core/internal";
 import { LazyValue } from "types/internal";
 import * as contextualModule from "src/utils/internal/contextual";
-import { ContextImpl } from "src/core/internal/context";
+import { ContextImpl } from "src/core/internal/context/context";
 import { isLazy } from "utils/internal";
 
 jest.mock("src/utils/internal/contextual");

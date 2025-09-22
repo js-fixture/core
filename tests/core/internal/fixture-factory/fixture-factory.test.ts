@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { FactoryContext, FixtureFactoryImpl, FixtureRecipeImpl } from "core/internal";
+import { FactoryContext, FixtureDraftFactory, FixtureFactoryImpl, FixtureRecipeImpl } from "core/internal";
 import { DraftOptions, OverrideFunction } from "types/internal";
 import { getNumberBetween } from "utils/internal";
 
@@ -8,29 +8,26 @@ jest.mock("src/core/internal/fixture-draft/fixture-draft-factory");
 
 const getNumberBetweenMock = jest.mocked(getNumberBetween);
 
-const createDraftMock = jest.fn();
-const draftToFixtureMock = jest.fn();
-
 interface Foo {
   id: number;
   name: string;
 }
-
-jest.mock("src/core/internal/fixture-draft/fixture-draft-factory", () => {
-  return {
-    FixtureDraftFactory: jest.fn().mockImplementation(() => ({
-      create: createDraftMock.mockImplementation(() => ({
-        toFixture: draftToFixtureMock,
-      })),
-    })),
-  };
-});
 
 function createOptions(variants?: FixtureRecipeImpl<any>[], overrideDraft?: OverrideFunction<any>): DraftOptions<any> {
   return { variants, overrideDraft };
 }
 
 describe(FixtureFactoryImpl.name, () => {
+  let createDraftMock: jest.SpyInstance;
+  let draftToFixtureMock = jest.fn();
+
+  beforeEach(() => {
+    createDraftMock = jest.spyOn(FixtureDraftFactory.prototype, "create");
+    createDraftMock.mockImplementation(() => ({
+      toFixture: draftToFixtureMock,
+    }));
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
     jest.restoreAllMocks();
