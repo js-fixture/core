@@ -5,9 +5,9 @@ import { getConfig, getNumberBetween } from "utils/internal";
 import { FixtureRecipeImpl } from "../fixture-recipe";
 import { FixtureDraftFactory } from "../fixture-draft";
 
-export class FixtureFactoryImpl<TFixture> implements FixtureFactory<TFixture> {
-  private readonly fixtureDraftFactory = new FixtureDraftFactory();
+const fixtureDraftFactory = new FixtureDraftFactory();
 
+export class FixtureFactoryImpl<TFixture> implements FixtureFactory<TFixture> {
   constructor(
     private readonly recipe: FixtureRecipeImpl<TFixture>,
     private readonly ctx: FactoryContext,
@@ -31,7 +31,7 @@ export class FixtureFactoryImpl<TFixture> implements FixtureFactory<TFixture> {
       variants: this.variants as FixtureRecipeImpl<TFixture>[],
       overrideDraft: overrideFn,
     };
-    const draft = this.fixtureDraftFactory.create(this.ctx, this.recipe, options);
+    const draft = fixtureDraftFactory.create(this.ctx, this.recipe, options);
     return draft.toFixture();
   }
 

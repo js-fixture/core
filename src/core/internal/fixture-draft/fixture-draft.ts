@@ -6,7 +6,7 @@ import { isContextualValue, isLazy } from "utils/internal";
 export class FixtureDraft<TFixture> {
   constructor(
     public readonly draft: TFixture,
-    public readonly isBaseDraft: boolean,
+    public readonly isBaseDraft: boolean
   ) {}
 
   /**
@@ -19,7 +19,7 @@ export class FixtureDraft<TFixture> {
     return this.resolveLayer(this.isBaseDraft, this.draft, this.draft) as TFixture;
   }
 
- /**
+  /**
    * Recursively resolves all deferred values (lazy/contextual) within an object or array.
    *
    * @param isBaseDraft - Whether this draft is the base draft (controls resolution rules for lazy values).
@@ -41,9 +41,7 @@ export class FixtureDraft<TFixture> {
     }
 
     if (obj && typeof obj === "object" && !(obj instanceof Date)) {
-      return Object.fromEntries(
-        Object.entries(obj).map(([key, value]) => [key, this.resolveLayer(isBaseDraft, draft, value)]),
-      );
+      return Object.fromEntries(Object.entries(obj).map(([key, value]) => [key, this.resolveLayer(isBaseDraft, draft, value)]));
     }
 
     return obj;

@@ -40,4 +40,14 @@ describe(forceMerge.name, () => {
       expect(result).toEqual({ a: 3, b: undefined });
     });
   });
+
+  it("should not modify the source object or the other object", () => {
+    const obj = { a: 1, b: 2 };
+    const other = { a: 3, b: 4 };
+
+    forceMerge(obj, other);
+
+    expect(obj).toEqual({ a: 1, b: 2 });
+    expect(other).toEqual({ a: 3, b: 4 });
+  });
 });
